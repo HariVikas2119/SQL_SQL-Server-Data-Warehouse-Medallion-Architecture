@@ -1,4 +1,7 @@
----------------------------------------------------------------------------- TABLE CREATION --------------------------------------------------------------------------------------------
+                                                    ------ TABLE CREATION ------
+                                                    
+                                                    -->>>>>> CRM SYSTEM <<<<<<--
+
 
 IF OBJECT_ID('silver.crm_cust_info','U') IS NOT NULL
 	DROP TABLE silver.crm_cust_info;
@@ -10,7 +13,7 @@ cst_last_name NVARCHAR(50),
 cst_marital_status NVARCHAR(50),
 cst_gndr NVARCHAR(50),
 cst_create_date DATE,
-dwh_create_date DATETIME2 DEFAULT GETDATE()
+dwh_create_date DATETIME2 DEFAULT GETDATE() --------------------------META DATA CREATION
 );
 
 IF OBJECT_ID('silver.crm_prd_info','U') IS NOT NULL
@@ -40,6 +43,9 @@ sls_quantity INT,
 sls_price INT,
 dwh_create_date DATETIME2 DEFAULT GETDATE());
 
+                                                    -->>>>>> ERP SYSTEM <<<<<<--
+
+
 IF OBJECT_ID('silver.erp_px_cat_g1v2','U') IS NOT NULL
 	DROP TABLE silver.erp_px_cat_g1v2;
 CREATE TABLE silver.erp_px_cat_g1v2(
@@ -66,12 +72,11 @@ CNTRY NVARCHAR(50),
 dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
-
-EXEC silver.load_silver
+                                                    -->>>>>> LOADING PHASE <<<<<<--
 
 CREATE OR ALTER PROCEDURE silver.load_silver AS 
 BEGIN
-	DECLARE @START_TIME DATETIME ,@END_TIME DATETIME, @BATCH_START_TIME DATETIME, @BATCH_END_TIME DATETIME;
+	DECLARE @START_TIME DATETIME ,@END_TIME DATETIME, @BATCH_START_TIME DATETIME, @BATCH_END_TIME DATETIME; ------------------------- TRACKING EXECUTION TIME
 BEGIN TRY
 			SET @BATCH_START_TIME = GETDATE();
 			PRINT '=====================================';
@@ -168,7 +173,7 @@ BEGIN TRY
 			sls_prd_key,
 			sls_cust_id,
 			case
-				when sls_order_dt = 0 or len(sls_order_dt) != 8 then null
+				when sls_order_dt = 0 or len(sls_order_dt) != 8 then null --------------------- DYNAMIC QUERY
 				else cast(cast(sls_order_dt as varchar) as date) 
 			end as sls_order_dt,
 			case
@@ -264,3 +269,4 @@ BEGIN TRY
 			PRINT '=====================================';
 		END CATCH
 END
+                                                    -->>>>>> END OF SILVER LAYER <<<<<<--
